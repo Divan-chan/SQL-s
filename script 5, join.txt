@@ -1,0 +1,23 @@
+-- источник данных select 
+from -- как присоединяем и с чем 
+<вид> join <таблица> -- принцип соединения 
+on таблица1.поле = таблица2.поле 
+
+select o.* from orders o 
+-- соединение inner по умолчанию
+inner join customers c 
+on o.customer_id = c.customer_id 
+
+select o.* 
+from orders o 
+right join customers c 
+on o.customer_id = c.customer_id 
+
+select o.* from orders o 
+left join customers c 
+--using можно использовать вместо on, если ключевые поля одинаковы 
+using(customer_id) 
+
+select o.order_id, o.employee_id, e.employee_id 
+from orders o join employees e 
+on o.employee_id > e.employee_id

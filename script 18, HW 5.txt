@@ -1,0 +1,35 @@
+select 
+  t2.id_transaction,
+  t2.summ as summ,
+  sum(summ) over(order by id_transaction asc) as cumsum
+from(
+  select id_transaction,
+    case
+       when type = 1 then -sum
+       else +sum
+    end summ
+  from transactions t) t2
+order by id_transaction asc
+
+select
+  doc_id,
+  date(date) as date,
+  row_number() over(partition by doc_id) as num
+from transactions
+order by date, doc_id, num
+
+select employee, type, sum, rank() over(partition by employee order by sum desc range between unbounded preceding and unbounded following ) as rnk
+from transactions
+order by employee desc, rnk
+
+select employee, type, sum, dense_rank() over(partition by employee order by sum desc range between unbounded preceding and unbounded following ) as rnk
+from transactions
+order by employee desc, rnk
+
+select id, 
+       doc_id, 
+       sum,
+       lead(sum) over(partition by doc_id order by id) as ld,
+       lag(sum) over(partition by doc_id order by id) as lg
+from transactions
+order by id

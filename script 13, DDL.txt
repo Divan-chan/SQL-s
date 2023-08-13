@@ -1,0 +1,95 @@
+-- DDL
+
+-- create alter drop truncate 
+
+create table if not exists demo1 (
+	id serial primary key, --подвид int
+	name varchar(30) not null default 'myname',
+	birth_date date check (birth_date > '1900-01-01'),
+	count_n numeric unique,
+	constraint con1 check (count_n > 3) --проверка на уровне всей таблицы
+)
+
+ select *
+ from demo1
+ 
+ drop table if exists demo1
+ 
+ create table demo1(
+ 	 id int primary key
+ )
+ 
+ insert into demo1(id, name, birth_date, count_n)
+values(2, 'Kolya', '1910-01-01', 4)
+
+truncate table demo1
+
+insert into demo1(id, name, birth_date, count_n)
+values(3, 'Sasha', '1910-01-01', 10),
+(4, 'myname', '1960-01-01', 5)
+
+drop table if exists demo2
+
+create table demo2(
+	id int primary key,
+	d_id int,
+	constraint fk_demo
+	foreign key (d_id)
+	references demo1(id)
+	on delete set null 
+	on update cascade -- создаём такой внешний ключ, что когда в исходной таблице удаляется запись, во второй значение становится null
+)
+
+select * from demo2
+
+insert into demo1 values (1), (2), (3), (4), (5)
+
+select * from demo1 d
+
+insert into demo2 values (1,1), (2,7), (3,3), (4,4), (5,5)
+
+-- DML: select insert update delete 
+
+update demo1 set id = 100 where id=2
+
+delete from demo1 where id = (select id from demo2 where d_id > 3)
+
+update table_name set column_name = ... where id (select id from demo2) 
+
+create table a as select * from demo2 where id > 1
+
+select * from a
+
+create table b as select * from demo2 where 1 = 0
+
+with a as (
+	 select *
+	 from demo2
+	 where id > 2
+)
+insert into b 
+select * 
+from a
+returning *
+
+truncate table b 
+
+ -- alter 
+ 
+ drop table if exists demo2
+ 
+ create table demo (
+ 	id int primary key,
+ 	name char (20) default 'myname',
+ 	count_n int unique
+ )
+ 
+ alter table demo alter column name type varchar(30)
+ 
+ alter table demo alter column name drop default
+ 
+ alter table demo rename count_n to count_m
+ 
+ alter table demo rename to demo2
+ 
+ alter table demo2 add constraint con1 check (count_m > 10)

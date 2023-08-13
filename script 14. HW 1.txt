@@ -1,0 +1,43 @@
+select id_an, selling_price
+from analysis
+where selling_price between 200 and 300
+
+select distinct id_type
+from analysis
+where selling_price between 200 and 300
+
+select fio, birthday
+from clients
+where to_char(birthday, 'YYYY') < '1990'
+
+select fio, phone
+from sales_man
+where phone similar to '896%'
+
+select fio, phone
+from sales_man
+where phone similar to '%2'
+
+select name
+from analysis
+where name ilike '%кров%'
+
+select *, round((selling_price - cost_price)/cost_price*100, 3) as markup
+from analysis
+
+SELECT s.fio, EXTRACT(YEAR FROM s.birthday) AS birth_year
+FROM sales_man s
+WHERE to_char(birthday, 'YYYY') > '1985'
+
+select id_man, fio
+from sales_man
+where mod(id_man,2) <> 0
+
+select id_an, selling_price, name
+from analysis 
+where selling_price between 100 and 1000
+order by selling_price desc
+
+select id_an, name, id_cat_an, cost_price
+from analysis
+order by id_cat_an asc, cost_price desc

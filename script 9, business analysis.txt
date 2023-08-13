@@ -1,0 +1,173 @@
+select *
+from userentry u 
+
+with a as (
+	select user_id, count(*) as cnt
+	from userentry u 
+	group by user_id 
+)
+select user_id, count(*) as cnt
+from userentry u2 
+group by user_id 
+having count(*) = (select max(cnt) from a)
+
+with a as (
+	select user_id, count(*) as cnt
+	from userentry u 
+	group by user_id 
+)
+select *
+from a
+order by cnt desc
+offset 1
+limit 1
+
+with a as (
+	select user_id, count(*) as cnt
+	from userentry u 
+	group by user_id 
+), 
+b as (
+	select *
+	from a
+	order by cnt desc
+	offset 4
+)
+select user_id, count(*) as cnt
+from userentry u2 
+group by user_id 
+having count(*) = (select max(cnt) from b)
+
+with a as (
+	select user_id, count(*) as cnt
+	from userentry u 
+	group by user_id 
+), 
+b as (
+	select user_id, cnt, dense_rank() over (order by cnt desc) as rnk
+	from a
+)
+select user_id, cnt
+from b
+where rnk = 12
+
+
+select *
+from userentry u 
+
+with a as (
+	select user_id, count(*) as cnt
+	from userentry u 
+	group by user_id 
+)
+select user_id, count(*) as cnt
+from userentry u2 
+group by user_id 
+having count(*) = (select max(cnt) from a)
+
+with a as (
+	select user_id, count(*) as cnt
+	from userentry u 
+	group by user_id 
+)
+select *
+from a
+order by cnt desc
+offset 1
+limit 1
+
+with a as (
+	select user_id, count(*) as cnt
+	from userentry u 
+	group by user_id 
+), 
+b as (
+	select *
+	from a
+	order by cnt desc
+	offset 4
+)
+select user_id, count(*) as cnt
+from userentry u2 
+group by user_id 
+having count(*) = (select max(cnt) from b)
+
+with a as (
+	select user_id, count(*) as cnt
+	from userentry u 
+	group by user_id 
+), 
+b as (
+	select user_id, cnt, dense_rank() over (order by cnt desc) as rnk
+	from a
+)
+select user_id, cnt
+from b
+where rnk = 12
+
+with a as (
+	select to_char(entry_at, 'MM-DD') as dt, count(distinct user_id) as cnt 
+	from userentry u 
+	where to_char(entry_at, 'YYYY') = '2022'
+	group by dt
+),
+b as (
+	select 
+		dt,
+		lag(cnt, 2) over(order by dt) as lg2,
+		lag(cnt) over(order by dt) as lg,
+		cnt,
+		lead(cnt) over(order by dt) as ld,
+		lead(cnt, 2) over(order by dt) as ld2
+		from a
+)
+select *
+from b
+where lg2 <= lg and lg <= cnt and cnt <= ld and ld <= ld2
+order by dt
+
+select *
+from userentry u 
+
+with a as (
+	select to_char(entry_at, 'MM-DD') as dt, count(distinct user_id) as cnt
+	from userentry u 
+	where to_char(entry_at, 'YYYY') = '2022'
+	group by dt
+),
+b as (
+	select 
+		dt,
+		cnt,
+		lead(cnt) over(order by dt) as ld,
+		lead(cnt, 2) over(order by dt) as ld2,
+		lead(cnt, 3) over(order by dt) as ld3,
+		lead(cnt, 4) over(order by dt) as ld4
+		from a 
+)
+select
+	dt,
+	cnt,
+	ld,
+	ld2,
+	(cnt + ld + ld2 + ld3 + ld4)/5.0 as avg_1
+from b
+
+with a as (
+	select to_char(entry_at, 'MM-DD') as dt, count(distinct user_id) as cnt
+	from userentry u 
+	where to_char(entry_at, 'YYYY') = '2022'
+	group by dt
+),
+b as (
+	select 
+		dt,
+		cnt,
+		avg(cnt) over(order by dt rows between current row and 4 following) as avg_2
+		from a 
+)
+select
+	dt,
+	cnt,
+	avg_2
+from b

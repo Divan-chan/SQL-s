@@ -1,0 +1,54 @@
+select *
+from order_details od 
+
+ltv = arpu + lifetime
+ltv - пожизненная ценность клиента
+arpu - average revenue per user - средний доход с пользователя
+lifetime - сколько живёт клиент, работает с компанией
+mrr - montly recouring revenue - сколько денег приходит за месяц от всех клиентов
+arpu = mrr / users
+arppu
+
+with a as (
+	 select 
+	 	country,
+	 	sum(quantity * unit_price) as revenue,
+	 	count(distinct o.customer_id) as clients,
+	 	count(distinct o.order_id) as order_amount
+	 from order_details od 
+	 join orders o 
+	 on od.order_id = o.order_id 
+	 join customers c 
+	 on c.customer_id = o.customer_id 
+	 group by country
+),
+arpu_table as (
+	select 
+		country,
+		revenue / order_amount as mrr,
+		revenue / (order_amount*clients) as arpu
+	from a 
+),
+c as (
+	select 
+		country, 
+		o.customer_id,
+		count(order_id) as cnt
+	from orders o
+	JOIN CUSTOMERS c2
+	on o.customer_id = c2.customer_id
+	group by country, o.customer_id
+),
+lt_table as (
+	select 
+		country,
+		avg(cnt) as lifetime
+	from c 
+	group by country
+)
+select 
+	a.country,
+	round(arpu*lifetime) as ltv
+from arpu_table a
+join lt_table l
+on a.country = l.country

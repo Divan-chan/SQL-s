@@ -1,0 +1,58 @@
+select 'Привет' || 'Как тебя зовут?' || 'Меня зовут Андрон!' as mytext
+
+select contact_name || '; ' || contact_title as info
+from customers c 
+
+-- соединить строки
+select concat(contact_name, '; ', contact_title) as info
+from customers c 
+
+select concat(company_name, '; ', contact_name, '; ', contact_title) as info
+from customers c 
+
+-- единый разделитель
+select concat_ws(';', company_name, contact_name, contact_title)
+from customers c 
+
+-- найти длину строки
+select company_name , length(company_name) as len
+from customers c 
+
+-- преобразовать регистр
+select company_name , lower (company_name), upper (company_name), initcap (company_name)
+from customers c 
+
+select *
+from customers c 
+where company_name like 'd%'
+
+-- найти позицию подстроки в строке
+select position('ab' in 'foo ab bar')
+
+
+select position(')' in phone)
+from customers c 
+
+-- вывести подстроку
+select substring('Меня зовут Вася' from 1 for 3) 
+
+-- вывести подстроку - регулярные выражения
+select substring('Меня зовут Вася' from '....$') 
+
+-- убрать пробелы с начала или конца строки
+select trim ('  Привет  ')
+
+-- убрать символы с начала и конца строки
+select trim(both 'xyz' from 'xy   привет  z')
+
+-- убрать сиволы только слева
+select trim(leading 'xyz' from 'xy   привет  z')
+
+-- убрать символы только справа
+select trim(trailing 'xyz' from 'xy   привет  z')
+
+-- отобрать несколько левых символов
+select left('aaa bbb', -2)
+
+-- отобрать несколько правых символов
+select right('aaa bbb', -2)

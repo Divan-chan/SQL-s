@@ -1,0 +1,98 @@
+select *
+from employees e 
+
+select last_name, first_name
+from employees e 
+
+select *
+from products p 
+
+select product_name as name, unit_price * (units_in_stock + units_on_order) as expected_revenue
+from products p 
+
+select *
+from products p 
+where unit_price > 20 and unit_price < 30
+
+select *
+from products p 
+where unit_price between 20 and 30
+and units_in_stock > 50
+and category_id = 2
+
+select *
+from products p 
+where unit_price between 20 and 30
+or units_in_stock > 100
+or supplier_id = 2
+
+select *
+from products p 
+where unit_price between 20 and 30 and supplier_id = 2
+or units_in_stock > 100 and supplier_id = 3
+
+select *
+from employees e 
+where region is null
+
+select *
+from products p 
+where supplier_id in (1, 2, 3)
+
+select distinct product_id 
+from order_details od 
+where quantity > 40
+
+select *
+from products p 
+where product_id in (
+	select product_id 
+	from order_details od 
+	where quantity > 40
+)
+
+select *
+from products p 
+where exists (select 1 from order_details od where product_id=p.product_id and quantity > 50)
+
+select *
+from order_details od 
+where product_id = 4
+or quantity > 50
+
+--отсортировать строки по поставщику
+--по умолчанию сортировка идет по возрастанию
+select *
+from products p 
+order by supplier_id 
+
+
+--используйте desc для сортировки по убыванию
+select *
+from products p 
+order by supplier_id desc
+
+
+--отсортировать по нескольким столбцам
+select *
+from products p 
+order by supplier_id desc, units_in_stock 
+
+
+--можете указывать не название столбца, а порядковый номер
+--нумерация столбцов начинается с 1
+select *
+from products p 
+order by 3 desc, 7
+
+
+--отсортировать по вычисляему столбцу
+select *
+from products p 
+order by unit_price * units_in_stock desc
+
+
+-- в order by можно указывать алиасы
+select unit_price * units_in_stock as expected_revenue
+from products p 
+order by expected_revenue desc

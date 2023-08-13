@@ -1,0 +1,25 @@
+select now() 
+
+select current_date 
+
+select current_time 
+
+select order_date, extract(year from order_date)
+from orders o 
+
+select order_date, extract(month from order_date)
+from orders o 
+
+select make_date(2021, 3, 31) + interval '3 days 5 hours 31 minutes'
+
+select order_date(2021, 3, 31) - order_date 
+from orders o 
+
+select shipped_date - order_date 
+from orders o 
+
+select to_date('10 Apr 2021', 'DD Mon YYYY') 
+
+select to_timestamp('10 04 2021 21 05 31', 'DD MM YYYY HH24 MI SS') 
+
+select to_char(make_date()) 

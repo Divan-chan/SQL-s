@@ -1,0 +1,23 @@
+select *
+from order_details od 
+
+with a as (
+	select product_id, sum(quantity) as quantity 
+	from order_details od 
+	group by product_id 
+),
+b as (
+	select product_id, quantity, quantity / sum(quantity) over() as divis
+	from a 
+),
+c as (
+	select product_id, quantity, divis, sum(divis) over(order by divis desc) as cumsum
+	from b 
+)
+select *,
+	case
+		when cumsum <= 0.8 then 'A'
+		when cumsum <= 0.95 then 'B'
+		else 'C'
+	end ABC
+from c 

@@ -1,0 +1,35 @@
+select *
+from customers c 
+where company_name like 'D_ %'
+
+select *
+from customers c 
+where company_name like '%on%'
+
+select 'привет' ilike 'Привет'
+
+select *
+from customers c 
+where company_name similar to '(D|B)_{10,}'
+
+select *,
+case
+	when unit_price > 100 then 'A'
+	when unit_price > 50 then 'B'
+	else 'C'
+end price_group
+from products p 
+
+select *,
+	case
+		when fax is not null then fax
+		when phone is not null then phone
+		else null
+	end contacts
+from customers c 
+
+select *, coalesce (fax, phone) as contants
+from customers c 
+
+select product_name, nullif (units_in_stock, 0)
+from products p 

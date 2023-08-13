@@ -1,0 +1,41 @@
+select employee, dt, lg, sm, round((sm-lg)/lg::numeric, 2) as inc
+from (
+  select employee, 
+       dt,
+       lag(sm) over(partition by employee order by dt) as lg,
+       sm
+  from(
+    select 
+       employee,
+       date as dt,
+       sum(sum) as sm
+    from transactions
+    where type = 0
+    group by employee, date
+    )t
+) t2
+order by employee, dt
+
+select id_transaction, dt, total, round((ld+lg+total)/3::numeric, 2) as sliding 
+from(
+  select id_transaction, 
+       dt,
+       lead(total) over(order by dt) as ld,
+       lag(total) over(order by dt) as lg,
+       total
+  from(
+    select 
+       id_transaction,
+       min(date) as dt,
+       sum(summ) as total
+    from (
+      select id_transaction, date,
+              case
+              when type = 0 then +sum
+              else -sum
+              end summ
+      from transactions) t
+    group by id_transaction
+    )t2
+) t3
+order by id_transaction

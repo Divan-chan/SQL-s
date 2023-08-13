@@ -1,0 +1,32 @@
+select id_an, name, id_type
+from analysis
+where id_type <> 1
+order by id_an asc
+
+select id_an, name, length(name) as length
+from analysis
+where length(name) > 20 or length(name) < 10
+order by length asc
+
+select 
+  id_an, 
+  name, 
+  id_cat_an, 
+  selling_price 
+from analysis
+where id_cat_an = 1 and selling_price between 200 and 300
+or id_cat_an = 6 and selling_price <1000
+
+select id_an, name, cost_price
+from analysis
+where name in ('АЛТ', 'ГГТ', 'АКТГ', 'Базовый')
+order by cost_price desc
+
+select id_an, name, info
+from analysis
+where info is not null
+order by id_an asc
+
+select id_cl, email
+from clients
+where email like '%a%@iitp.ru' or email like '%a%@mail.ru'

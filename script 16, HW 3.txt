@@ -1,0 +1,36 @@
+select category_an.id_cat_an
+from category_an
+left join analysis
+on analysis.id_cat_an = category_an.id_cat_an
+where analysis.id_cat_an is null
+order by id_cat_an desc
+
+select c.name as name
+from orderitems
+join analysis on analysis.id_an = orderitems.id_an
+right join category_an as c on c.id_cat_an = analysis.id_cat_an
+where analysis.id_cat_an is null
+order by name asc
+
+select name, id_cat_an, round((selling_price-cost_price)/cost_price*100, 3) as markup
+from analysis
+where (selling_price-cost_price)/cost_price*100 > 35
+union all
+select name, id_cat_an, round((selling_price-cost_price)/cost_price*100, 3) as markup
+from analysis
+where id_cat_an = 7
+order by markup desc
+
+select min(t.name) as name
+from analysis a
+join types_an as t on t.id_type = a.id_type
+where t.id_type is not null
+
+select fio
+from clients
+join orders as o on clients.id_cl = o.id_cl
+join orderitems on o.id_orders = orderitems.id_orders
+join analysis as a on orderitems.id_an = a.id_an
+join category_an as c on c.id_cat_an = a.id_cat_an
+where c.name = 'Микроэлементы'
+order by clients.fio asc

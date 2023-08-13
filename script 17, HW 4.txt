@@ -1,0 +1,46 @@
+select employee, count(distinct doc_id) as amount
+from transactions
+group by employee
+having count(distinct doc_id) < 8
+order by amount desc
+
+select employee, sum(sum) as summ
+from transactions
+where type = 0
+group by employee
+order by summ desc
+limit 1
+
+select employee, value, sum(sum) as accruals
+from transactions t
+join discounts as d on d.id = t.disc_id
+where type = 0
+group by employee, value
+order by employee asc, accruals desc
+
+select date(date), count(distinct doc_id) as amount
+from transactions
+where date between '2019-10-25' and '2019-11-02'
+group by date(date)
+order by amount desc
+
+select id_transaction, card_id, maincard_id, date, sum, type, employee, doc_id, cash_id, shop_id, doc_type, disc_id, disc_source
+from transactions
+group by id_transaction, card_id, maincard_id, date, sum, type, employee, doc_id, cash_id, shop_id, doc_type, disc_id, disc_source
+having count(*) > 1
+order by id_transaction asc
+
+select card_id, max(d.value) as max_perc, sum(sum) as summ, count(doc_id) as amount
+from transactions t
+join discounts as d on d.id = t.disc_id
+where type = 0
+group by card_id
+having max(d.value) = 7 or sum(sum) > 20 and count(doc_id) < 5
+order by card_id asc
+
+select employee, sum(sum) as summ
+from transactions t
+where type = 0
+group by employee
+order by summ desc
+limit 2 offset 1

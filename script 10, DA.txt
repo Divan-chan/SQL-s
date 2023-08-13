@@ -1,0 +1,52 @@
+select *
+from information_schema.columns
+where table_schema = 'public'
+and table_name = 'order_details'
+
+select count(*)
+from order_details od 
+
+select count(ship_region)
+from orders o 
+
+with orders as (
+	select *
+	from orders o 
+	where ship_region is not null 
+)
+select *
+from orders
+
+select 
+	to_char(order_date, 'DD/MM/YYYY') as dt,
+	coalesce(ship_region, 'No region'),
+	extract(year from order_date) as y1,
+	to_char(order_date, 'YYYY') as y2
+from orders o 
+
+select
+	order_id,
+	product_id,
+	unit_price,
+	quantity,
+	discount,
+	unit_price * quantity as revenue,
+	avg(unit_price *quantity) over (partition by product_id order by order_id rows between unbounded preceding and unbounded following) as avg_revenue,
+	stddev(unit_price *quantity) over (partition by product_id order by order_id rows between unbounded preceding and unbounded following) as stddev_revenue
+from order_details od 
+
+with a as (
+	select
+	order_id,
+	product_id,
+	unit_price,
+	quantity,
+	discount,
+	unit_price * quantity as revenue,
+	avg(unit_price *quantity) over (partition by product_id order by order_id rows between unbounded preceding and unbounded following) as avg_revenue,
+	stddev(unit_price *quantity) over (partition by product_id order by order_id rows between unbounded preceding and unbounded following) as stddev_revenue
+from order_details od 
+)
+select *
+from a
+where revenue >= avg_revenue + 1.5*stddev_revenue or revenue <=avg_revenue - 1.5*stddev_revenue

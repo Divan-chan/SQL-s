@@ -1,0 +1,76 @@
+-- убрать дубликаты
+select product_id
+from order_details od
+group by product_id 
+order by product_id desc
+
+
+select od.product_id, min(p.product_name), sum(quantity) 
+from order_details od 
+join products p
+on od.product_id = p.product_id 
+group by od.product_id 
+
+
+select p.product_name, avg(od.unit_price)*count(quantity)
+from order_details od 
+join products p 
+on od.product_id = p.product_id 
+group by p.product_name 
+
+
+select o.customer_id , count(*) as count_rows, count(coalesce(ship_region, '')) as cnt_col
+from orders o 
+group by o.customer_id 
+
+
+select string_agg(first_name  || ' ' || last_name, ', ')
+from employees e 
+group by city
+
+-- группировка по вычисленному выражению
+select to_char(o.order_date, 'YYYY') as year, count(*) as cnt 
+from orders o 
+group by year
+order by year
+
+-- группировка по вычислимым столбцам
+select quantity * unit_price, count(*)
+from order_details od 
+group by quantity * unit_price 
+
+
+select to_char(o.order_date, 'YYYY') as year, count(*) as cnt 
+from orders o 
+-- where year = '1996' ОШИБКА т.к. where обрабатывается до назначения алиаса
+where to_char(o.order_date, 'YYYY') = '1996'
+-- сначала фильтрация, потом группировка
+group by year
+order by year
+
+
+-- узнать, какие категории товаров и в каком колчиестве возит каждый поставщик
+select supplier_id, category_id, count(*) as cnt
+from products p 
+group by supplier_id, category_id 
+order by supplier_id, category_id 
+
+-- сколько различных товаров поставляет поставщик
+select s.company_name, count(*) as cnt 
+from products p 
+join suppliers s 
+on s.supplier_id = p.supplier_id 
+-- where count(*) > 3 ОШИБКА: агрегатные функции нельзя использовать внутри where
+group by s.company_name
+
+
+-- оператор having для фильтрации сгруппированных значений
+-- только те поставщики, которые возят более 2 товаров 
+select s.company_name, count(*) as cnt 
+from products p 
+join suppliers s 
+on s.supplier_id = p.supplier_id 
+where p.category_id = 1
+group by s.company_name
+having count(*) > 2
+

@@ -1,0 +1,119 @@
+select *
+from order_details od 
+where unit_price > (select avg(unit_price) from order_details od )
+
+
+-- только те записи, где product_id 2 или 3
+select *
+from order_details od
+where od.product_id in (
+    select product_id 
+    from products p 
+    where p.supplier_id = '1'
+    )
+    
+    
+-- коррелируемые подзапросы зависят от внешнего запроса
+select *
+from order_details od 
+where exists (
+    select * 
+    from products p 
+    -- таблица od определена в запросе, поэтому вне запроса 
+    -- подзапрос не будет работать
+    where od.product_id = p.product_id and p.category_id = '1'
+)
+
+-- как использовать подзапрос в select
+select
+    unit_price,
+    quantity,
+    (select product_name from products p where od.product_id = p.product_id) as name
+from order_details od 
+
+
+-- решение аналогичной задачи без подзапроса
+select 
+    od.unit_price,
+    od.quantity,
+    p.product_name
+from order_details od
+join products p 
+on od.product_id = p.product_id 
+
+-- как использовать подзапрос в from
+-- пример без подзапроса:
+select order_id , to_char(order_date, 'YYYY-MM') as dt
+from orders o 
+where to_char(order_date, 'YYYY-MM') = '1996-07'
+
+
+-- пример с подзапросом:
+select order_id, dt
+from (
+    select order_id, to_char(order_date, 'YYYY-MM') as dt 
+    from orders o
+    -- таблице нужно присвоить имя после скобок!
+    ) t
+where t.dt = '1996-07'
+
+-- какой сотрудник сколько времени работает
+-- date_trunc берет начальное состояние
+--считаем максимальную, минимальную  дату
+select max(date_trunc('month', o.order_date)) - min(date_trunc('month', o.order_date)) as dt, e.last_name || ' ' || e.first_name as name 
+from orders o
+join employees e 
+on o.employee_id = e.employee_id
+group by e.last_name || ' ' || e.first_name
+-- только те сотрудники, между первым и последним заказом которых прошло более 640 дней
+having max(date_trunc('month', o.order_date)) - min(date_trunc('month', o.order_date)) > interval '640 days'
+
+
+-- как переписать запрос с помощью подзапросов
+-- 3. Вычислим значение в агрегированных данных
+select name, mx-mn as diff
+from (
+-- 2. Сгруппируем таблицу по сотрудникам
+    select name, max(dt) as mx, min(dt) as mn
+    from (
+-- 1. Cформуруем таблицу, где будет дата и время
+        select date_trunc('month', o.order_date) as dt, e.last_name || ' ' || e.first_name as name 
+        from orders o
+        join employees e 
+        on o.employee_id = e.employee_id
+        ) t
+    group by name ) t2
+where mx-mn > interval '640 days'
+
+-- как упростить запрос с подзапросами с помощью временных таблиц:
+-- первичный запрос
+select name, mx-mn as diff
+from (
+    select name, max(dt) as mx, min(dt) as mn
+    from (
+        select date_trunc('month', o.order_date) as dt, e.last_name || ' ' || e.first_name as name 
+        from orders o
+        join employees e 
+        on o.employee_id = e.employee_id
+        ) t
+    group by name ) t2
+where mx-mn > interval '640 days'
+
+
+-- запрос с временными таблицами
+-- создадим временные таблицы с помощью with
+with t as(
+        select date_trunc('month', o.order_date) as dt, e.last_name || ' ' || e.first_name as name 
+        from orders o
+        join employees e 
+        on o.employee_id = e.employee_id
+        ),
+        t2 as (
+        select name, max(dt) as mx, min(dt) as mn
+        from t group by name
+        )
+-- итоговые расчеты: 
+select name, mx - mn as diff
+from t2
+where mx - mn > interval '640 days'
+
